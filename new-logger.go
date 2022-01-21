@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/anacrolix/torrent/generics"
-	"github.com/anacrolix/torrent/option"
+	. "github.com/anacrolix/generics"
 )
 
 func GetLogger(name string) *NewLogger {
@@ -45,7 +44,7 @@ func (l *NewLogger) GetChild(name string) *NewLogger {
 		parent:    l,
 		Propagate: true,
 	}
-	generics.MakeMapIfNilAndSet(&l.children, first, child)
+	MakeMapIfNilAndSet(&l.children, first, child)
 	if rest != "" {
 		return child.GetChild(rest)
 	}
@@ -80,9 +79,9 @@ func (l *NewLogger) LazyLog(level Level, f func() Msg) {
 	}
 }
 
-func (l *NewLogger) LogLevel(level Level) (ret option.T[ResolvedLogger]) {
+func (l *NewLogger) LogLevel(level Level) (ret Option[ResolvedLogger]) {
 	if l.IsEnabledFor(level) {
-		return option.Some(ResolvedLogger{})
+		return Some(ResolvedLogger{})
 	}
 	return
 }

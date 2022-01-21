@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/anacrolix/dht/v2 v2.14.1-0.20211220010335-4062f7927abf
+	github.com/anacrolix/generics v0.0.0-20220121083126-c81e77b56d6d
 	github.com/anacrolix/missinggo v1.3.0
 	github.com/anacrolix/torrent v1.40.1-0.20220113222208-f074b30bcbc8
 	github.com/stretchr/testify v1.7.0
@@ -11,7 +12,6 @@ require (
 
 require (
 	github.com/RoaringBitmap/roaring v0.9.4 // indirect
-	github.com/ajwerner/btree v0.0.0-20211201061316-91c8b66ad617 // indirect
 	github.com/anacrolix/chansync v0.3.0 // indirect
 	github.com/anacrolix/confluence v1.9.0 // indirect
 	github.com/anacrolix/envpprof v1.1.1 // indirect
@@ -57,7 +57,6 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 // indirect
 	github.com/rs/dnscache v0.0.0-20210201191234-295bba877686 // indirect
-	github.com/tidwall/btree v0.7.2-0.20211211132910-4215444137fc // indirect
 	go.etcd.io/bbolt v1.3.6 // indirect
 	golang.org/x/crypto v0.0.0-20210813211128-0a44fdfbc16e // indirect
 	golang.org/x/net v0.0.0-20210813160813-60bc85c4be6d // indirect
@@ -72,5 +71,3 @@ require (
 	modernc.org/sqlite v1.14.2-0.20211125151325-d4ed92c0a70f // indirect
 	zombiezen.com/go/sqlite v0.8.0 // indirect
 )
-
-replace github.com/anacrolix/torrent => ../torrent
