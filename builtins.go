@@ -19,7 +19,7 @@ func (me StreamHandler) Handle(msg Msg) {
 
 type ByteFormatter func(Msg) []byte
 
-func LineFormatter(msg Msg) []byte {
+func DefaultFormatter(msg Msg) []byte {
 	var pc [1]uintptr
 	msg.Callers(1, pc[:])
 	ret := []byte(fmt.Sprintf("%s\n  %s %-5s %s\n",

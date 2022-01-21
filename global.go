@@ -7,25 +7,29 @@ import (
 )
 
 var (
-	root = NewLogger{
-		name: "",
-		handlers: []Handler{StreamHandler{
-			W:   os.Stderr,
-			Fmt: LineFormatter,
-		}},
-		parent: nil,
+	DefaultHandler = StreamHandler{
+		W:   os.Stderr,
+		Fmt: DefaultFormatter,
 	}
-	Default = Logger{rootLogger{}}
+	root = NewLogger{
+		name:     "",
+		handlers: []Handler{DefaultHandler},
+		parent:   nil,
+	}
+	Default = Logger{RootLoggerImpl{&root}}
 	Discard = StreamHandler{
 		W:   ioutil.Discard,
 		Fmt: func(Msg) []byte { return nil },
 	}
 )
 
-type rootLogger struct{}
+// Terminates old Logger.LoggerImpl chain and tranfers handling to a NewLogger.
+type RootLoggerImpl struct {
+	*NewLogger
+}
 
-func (rootLogger) Log(m Msg) {
-	root.Handle(m)
+func (me RootLoggerImpl) Log(m Msg) {
+	me.Handle(m)
 }
 
 func Levelf(level Level, format string, a ...interface{}) {

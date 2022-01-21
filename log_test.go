@@ -1,6 +1,7 @@
 package log
 
 import (
+	"io"
 	"strconv"
 	"testing"
 
@@ -28,4 +29,27 @@ func TestValueStringNonLatin(t *testing.T) {
 	assert.Equal(t, q, s.String())
 	m := Str("").AddValue(q)
 	assert.True(t, m.HasValue(q))
+}
+
+func BenchmarkDiscardPrintf(b *testing.B) {
+	l := GetLogger(b.Name())
+	l.Propagate = false
+	l.SetHandler(Discard)
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		l.Printf("%p: %v", b, i)
+	}
+}
+
+func BenchmarkFilteredLog(b *testing.B) {
+	l := GetLogger(b.Name())
+	l.Propagate = false
+	l.SetHandler(StreamHandler{
+		W:   io.Discard,
+		Fmt: DefaultFormatter,
+	})
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		l.Printf("%p: %v", b, i)
+	}
 }
