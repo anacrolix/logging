@@ -7,15 +7,26 @@ import (
 )
 
 var (
-	Default = Logger{StreamLogger{
-		W:   os.Stderr,
-		Fmt: LineFormatter,
-	}}
-	Discard = Logger{StreamLogger{
+	root = NewLogger{
+		name: "",
+		handlers: []Handler{StreamHandler{
+			W:   os.Stderr,
+			Fmt: LineFormatter,
+		}},
+		parent: nil,
+	}
+	Default = Logger{rootLogger{}}
+	Discard = StreamHandler{
 		W:   ioutil.Discard,
 		Fmt: func(Msg) []byte { return nil },
-	}}
+	}
 )
+
+type rootLogger struct{}
+
+func (rootLogger) Log(m Msg) {
+	root.Handle(m)
+}
 
 func Levelf(level Level, format string, a ...interface{}) {
 	Default.Log(Fmsg(format, a...).Skip(1).SetLevel(level))

@@ -8,12 +8,12 @@ import (
 	"time"
 )
 
-type StreamLogger struct {
+type StreamHandler struct {
 	W   io.Writer
 	Fmt ByteFormatter
 }
 
-func (me StreamLogger) Log(msg Msg) {
+func (me StreamHandler) Handle(msg Msg) {
 	me.W.Write(me.Fmt(msg.Skip(1)))
 }
 
