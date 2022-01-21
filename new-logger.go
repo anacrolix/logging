@@ -24,10 +24,10 @@ type NewLogger struct {
 
 func (l *NewLogger) Handle(m Msg) {
 	for _, h := range l.handlers {
-		h.Handle(m)
+		h.Handle(m.Skip(1))
 	}
 	if l.Propagate {
-		l.parent.Handle(m)
+		l.parent.Handle(m.Skip(1))
 	}
 }
 
@@ -97,5 +97,5 @@ func (me ResolvedLogger) Log(m Msg) {
 }
 
 func (me ResolvedLogger) Logf(format string, args ...interface{}) {
-	me.l.Handle(Fstr(format, args...).SetLevel(me.level))
+	me.l.Handle(Fstr(format, args...).SetLevel(me.level).Skip(1))
 }

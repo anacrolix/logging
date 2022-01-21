@@ -29,7 +29,7 @@ type RootLoggerImpl struct {
 }
 
 func (me RootLoggerImpl) Log(m Msg) {
-	me.Handle(m)
+	me.Handle(m.Skip(1))
 }
 
 func Levelf(level Level, format string, a ...interface{}) {
