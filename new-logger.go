@@ -4,6 +4,7 @@ import (
 	"sync"
 
 	"github.com/anacrolix/torrent/generics"
+	"github.com/anacrolix/torrent/option"
 )
 
 func GetLogger(name string) *NewLogger {
@@ -60,4 +61,41 @@ func (l *NewLogger) Logf(level Level, format string, args ...interface{}) {
 
 func (l *NewLogger) SetHandler(h Handler) {
 	l.handlers = []Handler{h}
+}
+
+func (l *NewLogger) IsEnabledFor(level Level) bool {
+	if l.FilterLevel != NotSet {
+		return !level.LessThan(l.FilterLevel)
+	}
+	if l.parent != nil {
+		return l.parent.IsEnabledFor(level)
+	}
+	return true
+}
+
+func (l *NewLogger) LazyLog(level Level, f func() Msg) {
+	if l.IsEnabledFor(level) {
+		l.Handle(f())
+	}
+}
+
+func (l *NewLogger) LogLevel(level Level) (ret option.T[ResolvedLogger]) {
+	if l.IsEnabledFor(level) {
+		return option.Some(ResolvedLogger{})
+	}
+	return
+}
+
+type ResolvedLogger struct {
+	l     *NewLogger
+	level Level
+}
+
+func (me ResolvedLogger) Log(m Msg) {
+	m.Level = me.level
+	me.l.Handle(m)
+}
+
+func (me ResolvedLogger) Logf(format string, args ...interface{}) {
+	me.l.Handle(Fstr(format, args...).SetLevel(me.level))
 }

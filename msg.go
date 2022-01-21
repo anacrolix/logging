@@ -8,38 +8,46 @@ import (
 )
 
 type Msg struct {
-	MsgImpl
+	Format  string
+	Args    []interface{}
+	Printer func(Msg) string
+	Skip_   int
+	Values_ []interface{}
+	Level   Level
 }
 
 func (me Msg) String() string {
 	return me.Text()
 }
 
-func newMsg(text func() string) Msg {
-	return Msg{rootMsgImpl{text}}
+func fmsgPrinter(m Msg) string {
+	return fmt.Sprintf(m.Format, m.Args...)
 }
 
 func Fmsg(format string, a ...interface{}) Msg {
-	return newMsg(func() string { return fmt.Sprintf(format, a...) })
+	return Msg{
+		Format:  format,
+		Args:    a,
+		Printer: fmsgPrinter,
+	}
 }
 
 var Fstr = Fmsg
 
+func strPrinter(m Msg) string {
+	return m.Format
+}
+
 func Str(s string) (m Msg) {
-	return newMsg(func() string { return s })
-}
-
-type msgSkipCaller struct {
-	MsgImpl
-	skip int
-}
-
-func (me msgSkipCaller) Callers(skip int, pc []uintptr) int {
-	return me.MsgImpl.Callers(skip+1+me.skip, pc)
+	return Msg{
+		Format:  s,
+		Printer: strPrinter,
+	}
 }
 
 func (m Msg) Skip(skip int) Msg {
-	return Msg{msgSkipCaller{m.MsgImpl, skip}}
+	m.Skip_ += skip
+	return m
 }
 
 type item struct {
@@ -57,24 +65,11 @@ func (m Msg) SinkNew(l *NewLogger) Msg {
 	return m
 }
 
-type msgWithValues struct {
-	MsgImpl
-	values []interface{}
-}
-
-func (me msgWithValues) Values(cb iter.Callback) {
-	for _, v := range me.values {
-		if !cb(v) {
-			return
-		}
-	}
-	me.MsgImpl.Values(cb)
-}
-
 // TODO: What ordering should be applied to the values here, per MsgImpl.Values. For now they're
 // traversed in order of the slice.
 func (m Msg) WithValues(v ...interface{}) Msg {
-	return Msg{msgWithValues{m.MsgImpl, v}}
+	m.Values_ = append(m.Values_, v...)
+	return m
 }
 
 func (m Msg) AddValues(v ...interface{}) Msg {
@@ -140,17 +135,9 @@ func (m Msg) GetValueByType(p interface{}) bool {
 }
 
 func (m Msg) WithText(f func(Msg) string) Msg {
-	return Msg{msgWithText{
-		m,
-		func() string { return f(m) },
-	}}
-}
-
-type msgWithText struct {
-	MsgImpl
-	text func() string
-}
-
-func (me msgWithText) Text() string {
-	return me.text()
+	m_ := m
+	m_.Printer = func(Msg) string {
+		return m.Printer(m)
+	}
+	return m_
 }

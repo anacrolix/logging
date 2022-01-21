@@ -8,6 +8,7 @@ type Level struct {
 var levelKey = new(struct{})
 
 var (
+	NotSet   = Level{0, "NONE"}
 	Debug    = Level{1, "DEBUG"}
 	Info     = Level{2, "INFO"}
 	Warning  = Level{3, "WARN"}
