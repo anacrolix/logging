@@ -100,3 +100,28 @@ func (me ResolvedLogger) Log(m Msg) {
 func (me ResolvedLogger) Logf(format string, args ...interface{}) {
 	me.l.Handle(Fstr(format, args...).SetLevel(me.level).Skip(1))
 }
+
+func (l *NewLogger) Println(a ...interface{}) {
+	l.Handle(Msg{
+		Args:    a,
+		Printer: msgPrintln,
+		Skip_:   1,
+	}.withName(l.name))
+}
+
+func (l *NewLogger) Print(a ...interface{}) {
+	l.Handle(Msg{
+		Args:    a,
+		Printer: msgPrint,
+		Skip_:   1,
+	}.withName(l.name))
+}
+
+func msgPrintln(m Msg) string {
+	s := fmt.Sprintln(m.Args...)
+	return s[:len(s)-1]
+}
+
+func msgPrint(m Msg) string {
+	return fmt.Sprint(m.Args)
+}

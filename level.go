@@ -14,8 +14,8 @@ var (
 	Warning  = Level{3, "WARN"}
 	Error    = Level{4, "ERROR"}
 	Critical = Level{5, "CRIT"}
-	// Will this get special treatment? Not yet.
-	Fatal = Level{6, "FATAL"}
+	// Will this get special treatment? Not yet. Also disabled due to conflict with std log.Fatal.
+	//Fatal = Level{6, "FATAL"}
 )
 
 func (l Level) LogString() string {
