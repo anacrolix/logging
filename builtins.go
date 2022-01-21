@@ -20,10 +20,13 @@ func (me StreamHandler) Handle(msg Msg) {
 type ByteFormatter func(Msg) []byte
 
 func DefaultFormatter(msg Msg) []byte {
-	var pc [1]uintptr
-	msg.Callers(1, pc[:])
-	ret := []byte(fmt.Sprintf("%s\n  %s %-5s %s\n",
-		msg.Text(),
+	name := msg.Name
+	if name == "" {
+		var pc [1]uintptr
+		msg.Callers(1, pc[:])
+		name = humanPc(pc[0])
+	}
+	ret := []byte(fmt.Sprintf("- %s %-5s %s\n  %s",
 		time.Now().Format("2006-01-02T15:04:05-0700"),
 		func() string {
 			if level, ok := msg.GetLevel(); ok {
@@ -31,7 +34,8 @@ func DefaultFormatter(msg Msg) []byte {
 			}
 			return "NONE"
 		}(),
-		humanPc(pc[0]),
+		name,
+		msg.Text(),
 	))
 	if ret[len(ret)-1] != '\n' {
 		ret = append(ret, '\n')

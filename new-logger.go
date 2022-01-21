@@ -1,6 +1,7 @@
 package log
 
 import (
+	"fmt"
 	"sync"
 
 	"github.com/anacrolix/torrent/generics"
@@ -40,11 +41,11 @@ func (l *NewLogger) GetChild(name string) *NewLogger {
 		return child
 	}
 	child = &NewLogger{
-		name:      first,
+		name:      fmt.Sprintf("%s.%s", l.name, first),
 		parent:    l,
 		Propagate: true,
 	}
-	generics.MakeMapIfNilAndSet(&l.children, name, child)
+	generics.MakeMapIfNilAndSet(&l.children, first, child)
 	if rest != "" {
 		return child.GetChild(rest)
 	}
@@ -56,7 +57,7 @@ func (l *NewLogger) Printf(format string, args ...interface{}) {
 }
 
 func (l *NewLogger) Logf(level Level, format string, args ...interface{}) {
-	l.Handle(Fstr(format, args...).SetLevel(level))
+	l.Handle(Fstr(format, args...).SetLevel(level).withName(l.name))
 }
 
 func (l *NewLogger) SetHandler(h Handler) {

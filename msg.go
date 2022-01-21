@@ -14,6 +14,7 @@ type Msg struct {
 	Skip_   int
 	Values_ []interface{}
 	Level   Level
+	Name    string
 }
 
 func (me Msg) String() string {
@@ -140,4 +141,9 @@ func (m Msg) WithText(f func(Msg) string) Msg {
 		return m.Printer(m)
 	}
 	return m_
+}
+
+func (m Msg) withName(name string) Msg {
+	m.Name = name
+	return m
 }
