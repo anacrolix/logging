@@ -11,12 +11,14 @@ func GetLogger(name string) *NewLogger {
 }
 
 type NewLogger struct {
-	mu        sync.Mutex
-	name      string
-	handlers  []Handler
-	parent    *NewLogger
-	children  map[string]*NewLogger
-	Propagate bool
+	mu           sync.Mutex
+	name         string
+	handlers     []Handler
+	parent       *NewLogger
+	children     map[string]*NewLogger
+	Propagate    bool
+	FilterLevel  Level
+	DefaultLevel Level
 }
 
 func (l *NewLogger) Handle(m Msg) {
@@ -49,7 +51,11 @@ func (l *NewLogger) GetChild(name string) *NewLogger {
 }
 
 func (l *NewLogger) Printf(format string, args ...interface{}) {
-	l.Handle(Fstr(format, args...).WithValues("hello", "world"))
+	l.Logf(l.DefaultLevel, format, args...)
+}
+
+func (l *NewLogger) Logf(level Level, format string, args ...interface{}) {
+	l.Handle(Fstr(format, args...).SetLevel(level))
 }
 
 func (l *NewLogger) SetHandler(h Handler) {

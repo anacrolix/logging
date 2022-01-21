@@ -52,6 +52,11 @@ func (m Msg) Log(l Logger) Msg {
 	return m
 }
 
+func (m Msg) SinkNew(l *NewLogger) Msg {
+	l.Handle(m)
+	return m
+}
+
 type msgWithValues struct {
 	MsgImpl
 	values []interface{}
