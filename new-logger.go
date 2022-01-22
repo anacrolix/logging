@@ -1,4 +1,4 @@
-package log
+package logging
 
 import (
 	"fmt"
@@ -7,22 +7,22 @@ import (
 	. "github.com/anacrolix/generics"
 )
 
-func GetLogger(name string) *NewLogger {
+func GetLogger(name string) *Logger {
 	return root.GetChild(name)
 }
 
-type NewLogger struct {
+type Logger struct {
 	mu           sync.Mutex
 	name         string
 	handlers     []Handler
-	parent       *NewLogger
-	children     map[string]*NewLogger
+	parent       *Logger
+	children     map[string]*Logger
 	Propagate    bool
 	FilterLevel  Level
 	DefaultLevel Level
 }
 
-func (l *NewLogger) Handle(m Msg) {
+func (l *Logger) Handle(m Msg) {
 	for _, h := range l.handlers {
 		h.Handle(m.Skip(1))
 	}
@@ -31,7 +31,7 @@ func (l *NewLogger) Handle(m Msg) {
 	}
 }
 
-func (l *NewLogger) GetChild(name string) *NewLogger {
+func (l *Logger) GetChild(name string) *Logger {
 	first, rest := splitName(name)
 	l.mu.Lock()
 	defer l.mu.Unlock()
@@ -39,7 +39,7 @@ func (l *NewLogger) GetChild(name string) *NewLogger {
 	if ok {
 		return child
 	}
-	child = &NewLogger{
+	child = &Logger{
 		name:      fmt.Sprintf("%s.%s", l.name, first),
 		parent:    l,
 		Propagate: true,
@@ -51,19 +51,19 @@ func (l *NewLogger) GetChild(name string) *NewLogger {
 	return child
 }
 
-func (l *NewLogger) Printf(format string, args ...interface{}) {
+func (l *Logger) Printf(format string, args ...interface{}) {
 	l.Logf(l.DefaultLevel, format, args...)
 }
 
-func (l *NewLogger) Logf(level Level, format string, args ...interface{}) {
+func (l *Logger) Logf(level Level, format string, args ...interface{}) {
 	l.Handle(Fstr(format, args...).SetLevel(level).withName(l.name))
 }
 
-func (l *NewLogger) SetHandler(h Handler) {
+func (l *Logger) SetHandler(h Handler) {
 	l.handlers = []Handler{h}
 }
 
-func (l *NewLogger) IsEnabledFor(level Level) bool {
+func (l *Logger) IsEnabledFor(level Level) bool {
 	if l.FilterLevel != NotSet {
 		return !level.LessThan(l.FilterLevel)
 	}
@@ -73,21 +73,33 @@ func (l *NewLogger) IsEnabledFor(level Level) bool {
 	return true
 }
 
-func (l *NewLogger) LazyLog(level Level, f func() Msg) {
+func (l *Logger) LazyLog(level Level, f func() Msg) {
 	if l.IsEnabledFor(level) {
 		l.Handle(f())
 	}
 }
 
-func (l *NewLogger) LogLevel(level Level) (ret Option[ResolvedLogger]) {
+func (l *Logger) LogLevel(level Level) (ret Option[ResolvedLogger]) {
 	if l.IsEnabledFor(level) {
 		return Some(ResolvedLogger{})
 	}
 	return
 }
 
+func (l *Logger) LevelOk(level Level) (rl ResolvedLogger, ok bool) {
+	ok = l.IsEnabledFor(level)
+	if !ok {
+		return
+	}
+	rl = ResolvedLogger{
+		l:     l,
+		level: level,
+	}
+	return
+}
+
 type ResolvedLogger struct {
-	l     *NewLogger
+	l     *Logger
 	level Level
 }
 
@@ -100,7 +112,7 @@ func (me ResolvedLogger) Logf(format string, args ...interface{}) {
 	me.l.Handle(Fstr(format, args...).SetLevel(me.level).Skip(1))
 }
 
-func (l *NewLogger) Println(a ...interface{}) {
+func (l *Logger) Println(a ...interface{}) {
 	l.Handle(Msg{
 		Args:    a,
 		Printer: msgPrintln,
@@ -108,7 +120,7 @@ func (l *NewLogger) Println(a ...interface{}) {
 	}.withName(l.name))
 }
 
-func (l *NewLogger) Print(a ...interface{}) {
+func (l *Logger) Print(a ...interface{}) {
 	l.Handle(Msg{
 		Args:    a,
 		Printer: msgPrint,
@@ -123,4 +135,8 @@ func msgPrintln(m Msg) string {
 
 func msgPrint(m Msg) string {
 	return fmt.Sprint(m.Args)
+}
+
+func (l *Logger) IsZero() bool {
+	return l == nil
 }

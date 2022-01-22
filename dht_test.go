@@ -1,39 +1,19 @@
-package log_test
+package logging_test
 
 import (
 	"net"
 	"testing"
 
 	"github.com/anacrolix/dht/v2"
-	"github.com/anacrolix/log"
-	"github.com/anacrolix/torrent"
+	"github.com/anacrolix/logging"
 )
 
-// Mirrors usage seen for a particularly expensive logging callsite in anacrolix/dht.
-func BenchmarkDhtServerReplyLogger(b *testing.B) {
-	nl := log.GetLogger(b.Name())
+func getNewLogger(b *testing.B) *logging.Logger {
+	nl := logging.GetLogger(b.Name())
 	nl.Propagate = false
-	nl.SetHandler(log.Discard)
-	// Wrap the NewLogger for old-style Logger use.
-	l := log.Logger{log.RootLoggerImpl{log.GetLogger(b.Name())}}
-	l = l.FilterLevel(log.Info).WithValues(&torrent.Client{}).WithContextText("some dht prefix").WithDefaultLevel(log.Debug)
-	addr := dht.NewAddr(&net.UDPAddr{
-		IP:   net.IPv6loopback,
-		Port: 42069,
-		Zone: "sup",
-	})
-	b.ReportAllocs()
-	for i := 0; i < b.N; i++ {
-		log.Fmsg("reply to %q", addr).Log(l)
-	}
-}
-
-func getNewLogger(b *testing.B) *log.NewLogger {
-	nl := log.GetLogger(b.Name())
-	nl.Propagate = false
-	nl.SetHandler(log.Discard)
-	nl.DefaultLevel = log.Debug
-	nl.FilterLevel = log.Info
+	nl.SetHandler(logging.Discard)
+	nl.DefaultLevel = logging.Debug
+	nl.FilterLevel = logging.Info
 	return nl
 }
 
@@ -48,8 +28,8 @@ func BenchmarkDhtServerReplyNewLogger(b *testing.B) {
 	b.Run("LazyLog", func(b *testing.B) {
 		b.ReportAllocs()
 		for i := 0; i < b.N; i++ {
-			nl.LazyLog(nl.DefaultLevel, func() log.Msg {
-				return log.Fmsg("reply to %q", addr).AddValues(nl)
+			nl.LazyLog(nl.DefaultLevel, func() logging.Msg {
+				return logging.Fmsg("reply to %q", addr).AddValues(nl)
 			})
 		}
 	})

@@ -1,4 +1,4 @@
-package log
+package logging
 
 import (
 	"fmt"
@@ -56,12 +56,14 @@ type item struct {
 }
 
 // rename sink
-func (m Msg) Log(l Logger) Msg {
-	l.Log(m.Skip(1))
+func (m Msg) Log(l *Logger) Msg {
+	if l.IsEnabledFor(m.Level) {
+		l.Handle(m.Skip(1))
+	}
 	return m
 }
 
-func (m Msg) SinkNew(l *NewLogger) Msg {
+func (m Msg) SinkNew(l *Logger) Msg {
 	l.Handle(m)
 	return m
 }

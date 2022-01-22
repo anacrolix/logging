@@ -1,4 +1,4 @@
-package log
+package logging
 
 import (
 	"fmt"
@@ -11,21 +11,21 @@ var (
 		W:   os.Stderr,
 		Fmt: DefaultFormatter,
 	}
-	root = NewLogger{
+	root = Logger{
 		name:     "",
 		handlers: []Handler{DefaultHandler},
 		parent:   nil,
 	}
-	Default = Logger{RootLoggerImpl{&root}}
+	Default = &root
 	Discard = StreamHandler{
 		W:   ioutil.Discard,
 		Fmt: func(Msg) []byte { return nil },
 	}
 )
 
-// Terminates old Logger.LoggerImpl chain and tranfers handling to a NewLogger.
+// Terminates old Logger.LoggerImpl chain and tranfers handling to a Logger.
 type RootLoggerImpl struct {
-	*NewLogger
+	*Logger
 }
 
 func (me RootLoggerImpl) Log(m Msg) {
@@ -33,11 +33,11 @@ func (me RootLoggerImpl) Log(m Msg) {
 }
 
 func Levelf(level Level, format string, a ...interface{}) {
-	Default.Log(Fmsg(format, a...).Skip(1).SetLevel(level))
+	Default.Handle(Fmsg(format, a...).Skip(1).SetLevel(level))
 }
 
 func Printf(format string, a ...interface{}) {
-	Default.Log(Fmsg(format, a...).Skip(1))
+	Default.Handle(Fmsg(format, a...).Skip(1))
 }
 
 // Prints the arguments to the Default Logger.
