@@ -6,7 +6,7 @@ require (
 	github.com/anacrolix/dht/v2 v2.14.1-0.20211220010335-4062f7927abf
 	github.com/anacrolix/generics v0.0.0-20220121083126-c81e77b56d6d
 	github.com/anacrolix/missinggo v1.3.0
-	github.com/stretchr/testify v1.7.0
+	github.com/go-quicktest/qt v1.102.0
 )
 
 require (
@@ -21,14 +21,16 @@ require (
 	github.com/anacrolix/torrent v1.40.1-0.20220113222208-f074b30bcbc8 // indirect
 	github.com/benbjohnson/immutable v0.3.0 // indirect
 	github.com/bradfitz/iter v0.0.0-20191230175014-e8f45d346db8 // indirect
-	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/edsrzf/mmap-go v1.0.0 // indirect
+	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/huandu/xstrings v1.3.2 // indirect
+	github.com/kr/pretty v0.3.1 // indirect
+	github.com/kr/text v0.2.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/rs/dnscache v0.0.0-20210201191234-295bba877686 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
-	golang.org/x/sys v0.0.0-20211023085530-d6a326fbbf70 // indirect
+	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )

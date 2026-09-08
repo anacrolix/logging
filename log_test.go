@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/go-quicktest/qt"
 )
 
 func TestLogBadString(t *testing.T) {
@@ -26,9 +26,9 @@ func TestValueStringNonLatin(t *testing.T) {
 		q = `"カワキヲアメク\n"`
 	)
 	s := stringer{u}
-	assert.Equal(t, q, s.String())
+	qt.Check(t, qt.Equals(s.String(), q))
 	m := Str("").AddValue(q)
-	assert.True(t, m.HasValue(q))
+	qt.Check(t, qt.IsTrue(m.HasValue(q)))
 }
 
 func BenchmarkDiscardPrintf(b *testing.B) {
